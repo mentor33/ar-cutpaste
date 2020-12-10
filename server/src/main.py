@@ -79,16 +79,18 @@ def save():
     with open('cut_mask.png', 'wb') as f:
         f.write(res.content)
         # shutil.copyfileobj(res.raw, f)
-
+    logging.info(' > compositing final image...0...')
+    ref = Image.open(io.BytesIO(data))
     logging.info(' > opening mask...')
-    mask = Image.open('cut_mask.png').convert("L")
+    mask = Image.open('cut_mask.png').convert("L").resize(ref.size,resample=Image.BICUBIC, reducing_gap=2.0)
 
     # Convert string data to PIL Image.
-    logging.info(' > compositing final image...')
-    ref = Image.open(io.BytesIO(data))
+    
+    logging.info(' > compositing final image...1...')
     empty = Image.new("RGBA", ref.size, 0)
+    logging.info(' > compositing final image...2...')
     img = Image.composite(ref, empty, mask)
-
+    logging.info(' > compositing final image...3...')
     # TODO: currently hack to manually scale up the images. Ideally this would
     # be done respective to the view distance from the screen.
     img_scaled = img.resize((img.size[0] * 3, img.size[1] * 3))
